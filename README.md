@@ -1,9 +1,9 @@
 # R30X-Fingerprint-Sensor-Library
-This i an Arduino compatible library for R30X series optical fingerprint sensors. The library is written in a manner to be easily readable and thus modifiable.
+This i an Arduino compatible library for **R30X** series optical fingerprint sensors. The library is written in a manner to be easily readable and thus modifiable.
 
 I still need to implement some functions such as downloading and uploading images. I'll do that soon and will also publish a detailed tutoral on this.
 
-The example sketch was written for Arduino Due and R307 fingerprint sensor. The example can invoke all implemented functions from a serial terminal with short commands and parameters. The list of available commands are,
+The example sketch was written for **Arduino Due** and **R307** fingerprint sensor. The example can invoke all implemented functions from a serial terminal with short commands and parameters. The list of available commands are,
 
 - **clrlib** - clear library
 - **tmpcnt** - get templates count
