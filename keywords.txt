@@ -1,0 +1,70 @@
+#######################################
+# Syntax Coloring Map for ISL1208-RTC
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+ISL1208_RTC	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+begin	KEYWORD2
+isRtcActive	KEYWORD2
+updateTime	KEYWORD2
+updateAlarmTime	KEYWORD2
+fetchTime	KEYWORD2
+getHour	KEYWORD2
+getMinute	KEYWORD2
+getSecond	KEYWORD2
+getPeriod	KEYWORD2
+getDate	KEYWORD2
+getDay	KEYWORD2
+getMonth	KEYWORD2
+getYear	KEYWORD2
+getAlarmHour	KEYWORD2
+getAlarmMinute	KEYWORD2
+getAlarmSecond	KEYWORD2
+getAlarmPeriod	KEYWORD2
+getAlarmDate	KEYWORD2
+getAlarmDay	KEYWORD2
+getAlarmMonth	KEYWORD2
+getTimeString	KEYWORD2
+getDateString	KEYWORD2
+getDayString	KEYWORD2
+getDateDayString	KEYWORD2
+getTimeDateString	KEYWORD2
+getTimeDateDayString	KEYWORD2
+getAlarmString	KEYWORD2
+printTime	KEYWORD2
+printAlarmTime	KEYWORD2
+bcdToDec	KEYWORD2
+decToBcd	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+ISL1208_ADDRESS	LITERAL1
+ISL1208_SC	LITERAL1
+ISL1208_MN	LITERAL1
+ISL1208_HR	LITERAL1
+ISL1208_DT	LITERAL1
+ISL1208_MO	LITERAL1
+ISL1208_YR	LITERAL1
+ISL1208_DW	LITERAL1
+ISL1208_SR	LITERAL1
+ISL1208_INT	LITERAL1
+ISL1208_ATR	LITERAL1
+ISL1208_DTR	LITERAL1
+ISL1208_SCA	LITERAL1
+ISL1208_MNA	LITERAL1
+ISL1208_HRA	LITERAL1
+ISL1208_DTA	LITERAL1
+ISL1208_MOA	LITERAL1
+ISL1208_DWA	LITERAL1
+ISL1208_USR1	LITERAL1
+ISL1208_USR2	LITERAL1
