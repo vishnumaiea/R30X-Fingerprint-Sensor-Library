@@ -6,14 +6,14 @@
 //  Filename : R30X_Fingerprint_Test.ino                                   //
 //  Description : Arduino compatible test program for Fingerprint_VMA      //
 //                library for R30X series fingerprint sensors.             //
-//  Library version : 1.0                                                  //
+//  Library version : 1.0.1                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 11:44 PM, 08-04-2019, Monday                       //
+//  Last modified : IST 01:03 PM 02-09-2019, Monday                        //
 //                                                                         //
 //=========================================================================//
 

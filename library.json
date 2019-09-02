@@ -1,11 +1,11 @@
 {
-    "name": "ISL1208-RTC-Library",
-    "keywords": "i2c,wire,rtc",
-    "description": "Arduino library for interfacing Intersil ISl1208 Real-Time Clock chip.",
+    "name": "R307-Fingerprint-Sensor-Library",
+    "keywords": "r307,fingerprint,scanner,sensor,r30x,spi,optical,biometric,security",
+    "description": "Arduino library for interfacing R307 optical fingerprint scanner.",
     "repository":
     {
         "type": "git",
-        "url": "https://github.com/vishnumaiea/ISL1208-RTC-Library.git"
+        "url": "https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library.git"
     },
     "authors":
     {
@@ -13,7 +13,7 @@
         "url": "https://github.com/vishnumaiea",
         "maintainer": true
     },
-    "version": "1.4.2",
+    "version": "1.0.1",
     "license": "MIT",
     "frameworks": "arduino",
     "platforms": "*"

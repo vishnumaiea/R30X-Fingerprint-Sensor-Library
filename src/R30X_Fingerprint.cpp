@@ -6,14 +6,14 @@
 //  Filename : R30X_Fingerprint.cpp                                        //
 //  Description : CPP file for R30X_Fingerprint library for R30X series    //
 //                fingerprint sensors.                                     //
-//  Library version : 1.0                                                  //
+//  Library version : 1.0.1                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 11:44 PM, 08-04-2019, Monday                       //
+//  Last modified : IST 12:57 PM 02-09-2019, Monday                        //
 //                                                                         //
 //=========================================================================//
 
@@ -24,9 +24,6 @@
 
 #if defined(__AVR__) || defined(ESP8266)
   R30X_Fingerprint::R30X_Fingerprint (SoftwareSerial *ss, uint32_t password, uint32_t address) {
-    devicePassword = password; //these can be altered later
-    deviceAddress = address;
-
     hwSerial = NULL;
     swSerial = ss;
     mySerial = swSerial;
