@@ -27,7 +27,7 @@
 R30X_Fingerprint fps = R30X_Fingerprint (&Serial2, 0x16161616, 0x16161616); //custom password and address
 // R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
 
-//=========================================================================//
+//========================================================================//
 //this implements the fingerprint enrolling process
 //simply send the location of where you want to save the new fingerprint.
 //the location can be from #1 to #1000
@@ -37,76 +37,86 @@ R30X_Fingerprint fps = R30X_Fingerprint (&Serial2, 0x16161616, 0x16161616); //cu
 
 uint8_t enrollFinger(uint16_t location) {
   //enroll new fingerprint
-  Serial.println("Enrolling New Fingerprint");
-  Serial.println("-------------------------");
+  debugPort.println("=========================");
+  debugPort.println("Enrolling New Fingerprint");
+  debugPort.println("=========================");
 
   if((location > 1000) || (location < 1)) { //if not in range (1-1000)
-    Serial.println();
-    Serial.println("Enrolling failed.");
-    Serial.println("Bad location.");
-    Serial.print("location = #");
-    Serial.println(location);
+    debugPort.println();
+    debugPort.println("Enrolling failed.");
+    debugPort.println("Bad location.");
+    debugPort.print("location = #");
+    debugPort.println(location);
+    debugPort.println("Please try again.");
     return 1;
   }
 
-  delay(3000);
-  Serial.println();
-  Serial.println("#1 Put your finger on the sensor.");
-  Serial.println();
-  delay(3000);
+  delay(4000);
+  debugPort.println();
+  debugPort.println("Scan #1: Please put your finger on the sensor.");
+  debugPort.println();
+  delay(5000);
+
   uint8_t response = fps.generateImage(); //scan the finger
 
   if(response != 0) {
-    Serial.println("#1 Scanning failed. Try again.");
+    debugPort.println("Scan #1: ERROR - Scanning failed. Please try again.");
   }
   else {
-    Serial.println();
+    debugPort.println("Scan #1: Scanning success.");
+    debugPort.println();
+    delay(2000);
     response = fps.generateCharacter(1);  //generate the character file from image and save to buffer 1
 
     if(response != 0) {
-      Serial.println("#1 Generation failed. Try again.");
+      debugPort.println("Scan #1: ERROR - Template generation failed. Please try again.");
     }
     else {
-      delay(1000);
-      Serial.println();
-      Serial.println("#2 Put your finger on the sensor.");
-      delay(3000);
-      Serial.println();
-      response = fps.generateImage(); //scan the finger fro second time
+      debugPort.println();
+      debugPort.println("Scan #1: Template generation success.");
+      delay(2000);
+
+      debugPort.println("Scan #2: Please put your finger on the sensor.");
+      delay(5000);
+
+      debugPort.println();
+      response = fps.generateImage(); //scan the finger for second time
 
       if(response != 0) {
-        Serial.println("#2 Scanning failed. Try again.");
+        debugPort.println("Scan #2: ERROR - Scanning failed. Please try again.");
       }
       else {
-        Serial.println();
+        debugPort.println();
+        debugPort.println("Scan #2: Scanning success.");
+        delay(2000);
         response = fps.generateCharacter(2);  //generate the character file from image and save to buffer 2
 
         if(response != 0) {
-          Serial.println("#2 Generation failed. Try again.");
+          debugPort.println("Scan #2: Template generation failed. Please try again.");
         }
         else {
-          Serial.println();
+          debugPort.println();
           response = fps.generateTemplate();  //combine the two buffers and generate a template
 
           if(response == 0) {
-            Serial.println();
+            debugPort.println();
             response = fps.saveTemplate(1, location); //save the template to the specified location in library
 
             if(response == 0) {
-              Serial.print("Fingerprint enrolled at ID #");
-              Serial.print(location);
-              Serial.println(" successfully.");
+              debugPort.print("-- Fingerprint enrolled at ID #");
+              debugPort.print(location);
+              debugPort.println(" successfully --");
             }
           }
           else if(response == FPS_RESP_ENROLLMISMATCH) {
-            Serial.println("Fingerprints do not belong to same finger. Try again.");
+            debugPort.println("ERROR : Fingerprints do not belong to same finger. Please try again.");
           }
         }
       }
     }
   }
 
-  Serial.println();
+  debugPort.println();
 }
 
 //=========================================================================//
