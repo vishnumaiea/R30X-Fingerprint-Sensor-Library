@@ -13,7 +13,16 @@
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 01:03 PM 02-09-2019, Monday                        //
+//  Last modified : IST 01:20 PM 02-09-2019, Monday                        //
+//                                                                         //
+//=========================================================================//
+//                                                                         //
+//  This example was written for Arduino Due and uses Serial2 port of the  //
+//  Due. If you want to compile it for Uno, pass Serial or SoftwareSerial  //
+//  objects. Also, you need to disable debug info by commenting out the    //
+//  FPS_DEBUG define statement in the header file. It is done be default.  //
+//  This is because the strings used to print the debug info will overflow //
+//  the RAM. It's not a problem with Due. Refer the tutorial for more info.//
 //                                                                         //
 //=========================================================================//
 
@@ -22,9 +31,17 @@
 //=========================================================================//
 //initialize the object with the correct password and address
 //if you want to use the deafault values, pass nothing
-//Serial1 is availabel only for Due and Mega. Pass SoftwareSerial object for Uno etc
+//Serial1, Serial2 etc are only available for Due and Mega. Pass SoftwareSerial object for Uno etc
 
-R30X_Fingerprint fps = R30X_Fingerprint (&Serial2, 0x16161616, 0x16161616); //custom password and address
+//------------------------------------------------------------------------//
+//for Arduino Due
+R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0x16161616, 0x16161616); //custom password and address
+// R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
+
+//------------------------------------------------------------------------//
+//for Arduino Uno
+// SoftwareSerial Serial1(6, 7); // RX, TX
+// R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0x16161616, 0x16161616); //custom password and address
 // R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
 
 //========================================================================//

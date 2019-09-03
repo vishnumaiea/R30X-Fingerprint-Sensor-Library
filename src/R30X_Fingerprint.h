@@ -13,7 +13,7 @@
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 01:03 PM 02-09-2019, Monday                        //
+//  Last modified : IST 11:48 PM 03-09-2019, Tuesday                       //
 //                                                                         //
 //=========================================================================//
 
@@ -21,9 +21,20 @@
 #define R30X_FINGERPRINT_H
 
 #include "Arduino.h"
-#if defined(__AVR__) || defined(ESP8266)
-  #include <SoftwareSerial.h> //software serial doesn't work with Arduino Due
+
+#ifndef HAVE_HWSERIAL1  //if more than one hardware serials are not found
+  #include "SoftwareSerial.h"
 #endif
+
+//=========================================================================//
+
+// #if !defined(ARDUINO_AVR_UNO) && !defined(ARDUINO_AVR_MINI) && !defined(ARDUINO_AVR_NANO)
+//   #define FPS_DEBUG   //uncomment this line to enable debug info to be printed
+// #endif
+
+// #define FPS_DEBUG   //uncomment this line to enable debug info to be printed
+
+#define debugPort Serial  //the serisl port to which debug info will be sent
 
 //=========================================================================//
 //Response codes from FPS to the commands sent to it
@@ -119,9 +130,6 @@
 #define FPS_DEFAULT_PASSWORD                0xFFFFFFFF
 #define FPS_DEFAULT_ADDRESS                 0xFFFFFFFF
 #define FPS_BAD_VALUE                       0x1FU //some bad value or paramter was delivered
-
-#define FPS_DEBUG   //uncomment this line to enable debug info to be printed
-#define debugPort Serial
 
 //=========================================================================//
 //main class

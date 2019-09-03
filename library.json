@@ -1,7 +1,7 @@
 {
-    "name": "R307-Fingerprint-Sensor-Library",
-    "keywords": "r307,fingerprint,scanner,sensor,r30x,spi,optical,biometric,security",
-    "description": "Arduino library for interfacing R307 optical fingerprint scanner.",
+    "name": "R30X-Fingerprint-Sensor-Library",
+    "keywords": "r307,r303,fingerprint,scanner,sensor,r30x,spi,optical,biometric,security",
+    "description": "Arduino library for interfacing R30X series optical fingerprint scanners.",
     "repository":
     {
         "type": "git",
