@@ -1,6 +1,14 @@
 # R30X-Fingerprint-Sensor-Library
 This is an Arduino compatible library for **R30X** series optical fingerprint sensors from Hangzhou Grow Technology. The library is written in a manner to be easily readable and thus modifiable.
 
+- Library version : 1.0.1
+- Author : Vishnu M Aiea
+- Source : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library
+- Author's website : www.vishnumaiea.in
+- Initial release : IST 07:35 PM, 08-04-2019, Monday
+- Last updated : IST 12:02 AM, 04-09-2019, Wednesday
+- License : MIT
+
 Adetailed tutorial on interfacing the modules and using the library is available on my project website here : https://vishnumaiea.in/projects/hardware/interfacing-r307-optical-fingerprint-scanner-with-arduino. I still need to implement some functions for downloading and uploading fingerprint templates which will be added soon.
 
 The example sketch was written for **Arduino Due** and **R307** fingerprint sensor. To wire up, connect the TX and RX pins to the TX1 and RX1 pins of Due or Mega. If you're using Uno or similar boards with only one UART, use SoftwareSerial for the fingerprint sensor and hardware UART for debugging. The example can invoke all implemented functions from a serial terminal with short commands and parameters. The list of available commands are,
