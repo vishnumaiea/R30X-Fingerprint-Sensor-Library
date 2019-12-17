@@ -6,14 +6,14 @@
 //  Filename : R30X_Fingerprint.cpp                                        //
 //  Description : CPP file for R30X_Fingerprint library for R30X series    //
 //                fingerprint sensors.                                     //
-//  Library version : 1.0.1                                                //
+//  Library version : 1.2.0                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 12:57 PM 02-09-2019, Monday                        //
+//  Last modified : IST 03:32 AM 18-12-2019, Wednesday                     //
 //                                                                         //
 //=========================================================================//
 
@@ -24,11 +24,12 @@
 
 #if defined(__AVR__) || defined(ESP8266)
   R30X_Fingerprint::R30X_Fingerprint (SoftwareSerial *ss, uint32_t password, uint32_t address) {
-    hwSerial = NULL;
+    hwSerial = NULL;  //set to null since we won't be using hardware serial
     swSerial = ss;
-    mySerial = swSerial;
+    mySerial = swSerial;  //will be working with sw serial
 
-    devicePassword[0] = password & 0xFFU; //these can be altered later
+    //storing 32-bit values as 8-bit values in arrays can make many operations easier later
+    devicePassword[0] = password & 0xFFU;
     devicePassword[1] = (password >> 8) & 0xFFU;
     devicePassword[2] = (password >> 16) & 0xFFU;
     devicePassword[3] = (password >> 24) & 0xFFU;
@@ -57,6 +58,7 @@ R30X_Fingerprint::R30X_Fingerprint (HardwareSerial *hs, uint32_t password, uint3
   hwSerial = hs;
   mySerial = hwSerial;
 
+  //storing 32-bit values as 8-bit values in arrays can make many operations easier later
   devicePassword[0] = password & 0xFFU; //these can be altered later
   devicePassword[1] = (password >> 8) & 0xFFU;
   devicePassword[2] = (password >> 16) & 0xFFU;
@@ -91,7 +93,7 @@ void R30X_Fingerprint::begin (uint32_t baudrate) {
 }
 
 //=========================================================================//
-//reset tx and rx parameters
+//reset some parameters
 
 void R30X_Fingerprint::resetParameters (void) {
   deviceBaudrate = FPS_DEFAULT_BAUDRATE;  //UART speed
@@ -126,7 +128,7 @@ void R30X_Fingerprint::resetParameters (void) {
 }
 
 //=========================================================================//
-//send a data packet to the FPS
+//send a data packet to the FPS (fingerprint scanner)
 
 uint8_t R30X_Fingerprint::sendPacket (uint8_t type, uint8_t command, uint8_t* data, uint16_t dataLength) {
   if(data != NULL) {  //sometimes there's no additional data except the command
@@ -219,12 +221,12 @@ uint8_t R30X_Fingerprint::sendPacket (uint8_t type, uint8_t command, uint8_t* da
 }
 
 //=========================================================================//
-//send a data packet to the FPS
+//receive a data packet from the FPS and extract values
 
 uint8_t R30X_Fingerprint::receivePacket (uint32_t timeout) {
   uint8_t* dataBuffer;
   if(dataPacketLength < 64) { //data buffer length should be at least 64 bytes
-    dataBuffer = new uint8_t[64](); //conatains only the data
+    dataBuffer = new uint8_t[64](); //this contains only the data
   }
   else {
     dataBuffer = new uint8_t[FPS_DEFAULT_RX_DATA_LENGTH]();
@@ -240,6 +242,7 @@ uint8_t R30X_Fingerprint::receivePacket (uint32_t timeout) {
     debugPort.println("Reading response.");
   #endif
 
+  //wait for message for a specific period
   while (timeout > 0) {
     if(mySerial->available()) {
       byteBuffer = mySerial->read();
@@ -270,8 +273,9 @@ uint8_t R30X_Fingerprint::receivePacket (uint32_t timeout) {
     return FPS_RX_BADPACKET;
   }
 
-  uint16_t token = 0;
+  uint16_t token = 0; //a position counter/indicator
 
+  //the following loop checks each segments of the data packet for errors, and retrieve the correct ones
   while(true) {
     switch (token) {
       case 0: //test packet start codes
@@ -771,7 +775,7 @@ uint8_t R30X_Fingerprint::setPassword (uint32_t password) {
 
 //=========================================================================//
 //set a new 4 byte device address. if the operation is successful, the new
-//address will be saved to the object.
+//address will be saved
 
 uint8_t R30X_Fingerprint::setAddress (uint32_t address) {
   uint8_t addressArray[4] = {0}; //just so that we do not need to alter the existing address before successfully changing it
@@ -873,15 +877,15 @@ uint8_t R30X_Fingerprint::setBaudrate (uint32_t baud) {
 }
 
 //=========================================================================//
-//change the baudrate and reinitialize the port. the new baudrate will be
-//saved after successful execution
+//change the security level - or the threshold for matching two fingerprint
+//templates
 
 uint8_t R30X_Fingerprint::setSecurityLevel (uint8_t level) {
   uint8_t dataArray[2] = {0};
 
   if((level > 0) && (level < 6)) { //should be between 1 and 5
     dataArray[0] = level;  //low byte
-    dataArray[1] = 5; //the code for the system parameter number, 5 means security level
+    dataArray[1] = 5; //the code for the system parameter number, 5 means the security level
 
     sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_SETSYSPARA, dataArray, 2); //send the command and data
     uint8_t response = receivePacket(); //read response
@@ -981,14 +985,14 @@ uint8_t R30X_Fingerprint::setDataLength (uint16_t length) {
 }
 
 //=========================================================================//
-//turns on or off the communication port
+//turns on/off the communication port
 
 uint8_t R30X_Fingerprint::portControl (uint8_t value) {
   #ifdef FPS_DEBUG
     if(value == 1)
-      debugPort.println("Turing port on..");
+      debugPort.println("Turning port on..");
     else
-      debugPort.println("Turing port off..");
+      debugPort.println("Turning port off..");
   #endif
 
   uint8_t dataArray[1] = {0};
@@ -1002,9 +1006,9 @@ uint8_t R30X_Fingerprint::portControl (uint8_t value) {
       if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
         #ifdef FPS_DEBUG
           if(value == 1)
-            debugPort.println("Turing port on success.");
+            debugPort.println("Turning port on success.");
           else
-            debugPort.println("Turing port off success.");
+            debugPort.println("Turning port off success.");
         #endif
         return FPS_RESP_OK; //port setting complete
       }
@@ -1051,7 +1055,7 @@ uint8_t R30X_Fingerprint::readSysPara() {
       else if(rxDataBuffer[2] == 3)
         dataPacketLength = 256;
 
-      deviceBaudrate = rxDataBuffer[0] * 9600;  //baudrate is retrieved as a number
+      deviceBaudrate = rxDataBuffer[0] * 9600;  //baudrate is retrieved as a multiplier
 
       #ifdef FPS_DEBUG
         debugPort.println("Reading system parameters success.");
@@ -1082,7 +1086,7 @@ uint8_t R30X_Fingerprint::readSysPara() {
 }
 
 //=========================================================================//
-//returns the total template count
+//returns the total template count in the flash memory
 
 uint8_t R30X_Fingerprint::getTemplateCount() {
   #ifdef FPS_DEBUG
@@ -1125,7 +1129,7 @@ uint8_t R30X_Fingerprint::getTemplateCount() {
 //range = 1-1000
 
 uint8_t R30X_Fingerprint::captureAndRangeSearch (uint16_t captureTimeout, uint16_t startLocation, uint16_t count) {
-  if(captureTimeout > 25500) { //if range overflows
+  if(captureTimeout > 25500) { //25500 is the max timeout the device supports
     #ifdef FPS_DEBUG
       debugPort.println("Capture and range search failed.");
       debugPort.println("Bad capture timeout.");
@@ -1220,6 +1224,7 @@ uint8_t R30X_Fingerprint::captureAndRangeSearch (uint16_t captureTimeout, uint16
 
 //=========================================================================//
 //scans the fingerprint and finds a match within the full range of library
+//a timeout can not be specified here
 
 uint8_t R30X_Fingerprint::captureAndFullSearch () {
   #ifdef FPS_DEBUG
@@ -1264,7 +1269,7 @@ uint8_t R30X_Fingerprint::captureAndFullSearch () {
 }
 
 //=========================================================================//
-//scan the fingerprint, generate an image and store it on the buffer
+//scan the fingerprint, generate an image and store it in the image buffer
 
 uint8_t R30X_Fingerprint::generateImage () {
   #ifdef FPS_DEBUG
@@ -1296,11 +1301,11 @@ uint8_t R30X_Fingerprint::generateImage () {
 }
 
 //=========================================================================//
-//get the image stored in the image buffer
-//this is not completely implemented
+//export the image stored in one of the buffers to the computer
+//this is not fully implemented. please do not use it
 
-uint8_t R30X_Fingerprint::downloadImage () {
-  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_DOWNLOADIMAGE); //send the command, there's no additional data
+uint8_t R30X_Fingerprint::exportImage () {
+  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_EXPORTIMAGE); //send the command, there's no additional data
   uint8_t response = receivePacket(); //read response
 
   if(response == FPS_RX_OK) { //if the response packet is valid
@@ -1317,11 +1322,11 @@ uint8_t R30X_Fingerprint::downloadImage () {
 }
 
 //=========================================================================//
-//get the image stored in the image buffer
-//this is not completely implemented
+//import an image file from computer to one of the buffers.
+//this is not fully implemented. please do not use it
 
-uint8_t R30X_Fingerprint::uploadImage (uint8_t* dataBuffer) {
-  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE, dataBuffer, 64); //send the command, there's no additional data
+uint8_t R30X_Fingerprint::importImage (uint8_t* dataBuffer) {
+  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_IMPORTIMAGE, dataBuffer, 64); //send the command, there's no additional data
   uint8_t response = receivePacket(); //read response
 
   if(response == FPS_RX_OK) { //if the response packet is valid
@@ -1338,7 +1343,7 @@ uint8_t R30X_Fingerprint::uploadImage (uint8_t* dataBuffer) {
 }
 
 //=========================================================================//
-//generate character file from image stored in image buffer and store it on
+//generate a character file from image stored in image buffer and store it in
 //one of the two character buffers
 
 uint8_t R30X_Fingerprint::generateCharacter (uint8_t bufferId) {
@@ -1360,7 +1365,7 @@ uint8_t R30X_Fingerprint::generateCharacter (uint8_t bufferId) {
     debugPort.println(bufferId);
   #endif
   
-  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE, dataBuffer, 1); //send the command, there's no additional data
+  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_IMAGETOCHARACTER, dataBuffer, 1);
   uint8_t response = receivePacket(); //read response
 
   if(response == FPS_RX_OK) { //if the response packet is valid
@@ -1399,14 +1404,15 @@ uint8_t R30X_Fingerprint::generateCharacter (uint8_t bufferId) {
 }
 
 //=========================================================================//
-//combine the two character files and generate a template
+//combine the two character files from buffers and generate a template
+//the template will be saved to the both the buffers
 
 uint8_t R30X_Fingerprint::generateTemplate () {
   #ifdef FPS_DEBUG
     debugPort.println("Generating template from char buffers..");
   #endif
 
-  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE); //send the command, there's no additional data
+  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_GENERATETEMPLATE); //send the command, there's no additional data
   uint8_t response = receivePacket(); //read response
 
   if(response == FPS_RX_OK) { //if the response packet is valid
@@ -1431,12 +1437,12 @@ uint8_t R30X_Fingerprint::generateTemplate () {
 }
 
 //=========================================================================//
-//combine the two character files and generate a template
-//this is not completely implemented
+//export a character file from one of the buffers to the computer
+//this is not completely implemented. please do not use it
 
-uint8_t R30X_Fingerprint::downloadCharacter (uint8_t bufferId) {
+uint8_t R30X_Fingerprint::exportCharacter (uint8_t bufferId) {
   uint8_t dataBuffer[1] = {bufferId}; //create data array
-  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE); //send the command, there's no additional data
+  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE);
   uint8_t response = receivePacket(); //read response
 
   if(response == FPS_RX_OK) { //if the response packet is valid
@@ -1453,13 +1459,13 @@ uint8_t R30X_Fingerprint::downloadCharacter (uint8_t bufferId) {
 }
 
 //=========================================================================//
-//combine the two character files and generate a template
-//this is not completely implemented
+//import a character file from computer to one of the buffers
+//this is not completely implemented. please do not use it
 
-uint8_t R30X_Fingerprint::uploadCharacter (uint8_t bufferId, uint8_t* dataBuffer) {
+uint8_t R30X_Fingerprint::importCharacter (uint8_t bufferId, uint8_t* dataBuffer) {
   uint8_t dataArray[sizeof(dataBuffer)+1] = {0}; //create data array
   dataArray[sizeof(dataBuffer)];
-  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE); //send the command, there's no additional data
+  sendPacket(FPS_ID_COMMANDPACKET, FPS_CMD_UPLOADIMAGE);
   uint8_t response = receivePacket(); //read response
 
   if(response == FPS_RX_OK) { //if the response packet is valid
@@ -1603,7 +1609,7 @@ uint8_t R30X_Fingerprint::loadTemplate (uint8_t bufferId, uint16_t location) {
 }
 
 //=========================================================================//
-//delete templates saved in the library
+//delete a set of templates saved in the flash memory
 
 uint8_t R30X_Fingerprint::deleteTemplate (uint16_t startLocation, uint16_t count) {
   if((startLocation > 1000) || (startLocation < 1)) { //if the value is not 1 or 2
@@ -1699,7 +1705,7 @@ uint8_t R30X_Fingerprint::clearLibrary () {
 }
 
 //=========================================================================//
-//deletes all the templates stored in the library
+//match the templates stored in the buffers and calculate a match score
 
 uint8_t R30X_Fingerprint::matchTemplates () {
   #ifdef FPS_DEBUG

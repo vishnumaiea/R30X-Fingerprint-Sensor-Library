@@ -6,14 +6,14 @@
 //  Filename : R30X_Fingerprint.h                                          //
 //  Description : Header file for R30X_Fingerprint library for R30X series //
 //                fingerprint sensors.                                     //
-//  Library version : 1.0.1                                                //
+//  Library version : 1.2.0                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 11:48 PM 03-09-2019, Tuesday                       //
+//  Last modified : IST 08:21 AM 12-12-2019, Thursday                      //
 //                                                                         //
 //=========================================================================//
 
@@ -22,7 +22,7 @@
 
 #include "Arduino.h"
 
-#ifndef HAVE_HWSERIAL1  //if more than one hardware serials are not found
+#ifndef HAVE_HWSERIAL1  //if more than one hardware serial ports are not present
   #include "SoftwareSerial.h"
 #endif
 
@@ -95,18 +95,18 @@
 //-------------------------------------------------------------------------//
 //Command codes
 
-#define FPS_CMD_GENIMAGE              0x01U    //collect finger image
-#define FPS_CMD_IMAGE2TZ              0x02U    //generate char file from image
+#define FPS_CMD_SCANFINGER            0x01U    //scans the finger and collect finger image
+#define FPS_CMD_IMAGETOCHARACTER      0x02U    //generate char file from a single image and store it to one of the buffers
 #define FPS_CMD_MATCHTEMPLATES        0x03U    //match two fingerprints precisely
 #define FPS_CMD_SEARCHLIBRARY         0x04U    //search the fingerprint library
-#define FPS_CMD_REGMODEL              0x05U    //combine character files and generate template
-#define FPS_CMD_STORETEMPLATE         0x06U    //store template
-#define FPS_CMD_LOADTEMPLATE          0x07U    //read/load template
-#define FPS_CMD_UPLOADTEMPLATE        0x08U    //upload template
-#define FPS_CMD_DOWNLOADTEMPLATE      0x09U    //download template
-#define FPS_CMD_DOWNLOADIMAGE         0x0AU    //upload image
-#define FPS_CMD_UPLOADIMAGE           0x0BU    //upload image to the sensor
-#define FPS_CMD_DELETETEMPLATE        0x0CU    //delete template
+#define FPS_CMD_GENERATETEMPLATE      0x05U    //combine both character buffers and generate a template
+#define FPS_CMD_STORETEMPLATE         0x06U    //store the template on one of the buffers to flash memory
+#define FPS_CMD_LOADTEMPLATE          0x07U    //load a template from flash memory to one of the buffers
+#define FPS_CMD_EXPORTTEMPLATE        0x08U    //export a template file from buffer to computer
+#define FPS_CMD_IMPORTTEMPLATE        0x09U    //import a template file from computer to sensor buffer
+#define FPS_CMD_EXPORTIMAGE           0x0AU    //export fingerprint image from buffer to computer
+#define FPS_CMD_IMPORTIMAGE           0x0BU    //import an image from computer to sensor buffer
+#define FPS_CMD_DELETETEMPLATE        0x0CU    //delete a template from flash memory
 #define FPS_CMD_CLEARLIBRARY          0x0DU    //clear fingerprint library
 #define FPS_CMD_SETSYSPARA            0x0EU    //set system configuration register
 #define FPS_CMD_READSYSPARA           0x0FU    //read system configuration register
@@ -119,8 +119,8 @@
 #define FPS_CMD_READNOTEPAD           0x19U    //read from device notepad
 #define FPS_CMD_HISPEEDSEARCH         0x1BU    //highspeed search of fingerprint
 #define FPS_CMD_TEMPLATECOUNT         0x1DU    //read total template count
-#define FPS_CMD_GETANDRANGESEARCH     0x32U    //read total template count
-#define FPS_CMD_GETANDFULLSEARCH      0x34U    //read total template count
+#define FPS_CMD_SCANANDRANGESEARCH    0x32U    //read total template count
+#define FPS_CMD_SCANANDFULLSEARCH     0x34U    //read total template count
 
 #define FPS_DEFAULT_TIMEOUT                 2000  //UART reading timeout in milliseconds
 #define FPS_DEFAULT_BAUDRATE                57600 //9600*6
@@ -194,12 +194,12 @@ class R30X_Fingerprint {
   uint8_t captureAndRangeSearch (uint16_t captureTimeout, uint16_t startId, uint16_t count); //scan a finger and search a range of locations
   uint8_t captureAndFullSearch (void);  //scan a finger and search the entire library
   uint8_t generateImage (void); //scan a finger, generate an image and store it in the buffer
-  uint8_t downloadImage (void); //download image from sensor
-  uint8_t uploadImage (uint8_t* dataBuffer);  //upload image to sensor
+  uint8_t exportImage (void); //export a fingerprint image from the sensor to the computer
+  uint8_t importImage (uint8_t* dataBuffer);  //import a fingerprint image from the computer to sensor
   uint8_t generateCharacter (uint8_t bufferId); //generate character file from image
   uint8_t generateTemplate (void);  //combine the two character files and generate a single template
-  uint8_t downloadCharacter (uint8_t bufferId); //download character file stored in one of the two buffers
-  uint8_t uploadCharacter (uint8_t bufferId, uint8_t* dataBuffer);  //upload character files to one of the two buffers
+  uint8_t exportCharacter (uint8_t bufferId); //export a character file from the sensor to computer
+  uint8_t importCharacter (uint8_t bufferId, uint8_t* dataBuffer);  //import a character file to the sensor from computer
   uint8_t saveTemplate (uint8_t bufferId, uint16_t location);  //store the template in the buffer to a location in the library
   uint8_t loadTemplate (uint8_t bufferId, uint16_t location); //load a template from library to one of the buffers
   uint8_t deleteTemplate (uint16_t startLocation, uint16_t count);  //delete a set of templates from library
