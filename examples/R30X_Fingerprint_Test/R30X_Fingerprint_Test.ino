@@ -1,19 +1,19 @@
 
 //=========================================================================//
 //                                                                         //
-//  ## R30X Fingerprint Sensor Library Example 1 ##                        //
+//  ## R30X Fingerprint Sensor Library Example-01 ##                       //
 //                                                                         //
 //  Filename : R30X_Fingerprint_Test.ino                                   //
 //  Description : Arduino compatible test program for Fingerprint_VMA      //
 //                library for R30X series fingerprint sensors.             //
-//  Library version : 1.0.1                                                //
+//  Library version : 1.2.0                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 12:02 AM 04-09-2019, Wednesday                     //
+//  Last modified : IST 06:05 AM 18-12-2019, Wednesday                     //
 //                                                                         //
 //=========================================================================//
 //                                                                         //
@@ -35,7 +35,7 @@
 
 //------------------------------------------------------------------------//
 //for Arduino Due
-R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0x16161616, 0x16161616); //custom password and address
+R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0xFFFFFFFF, 0xFFFFFFFF); //custom password and address
 // R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
 
 //------------------------------------------------------------------------//
@@ -146,17 +146,19 @@ void setup() {
   Serial.println();
   Serial.println("R307 Fingerprint Test");
   Serial.println("======================");
+  Serial.println("A set of available commands is found at https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library");
+  Serial.println("All commands and parameters must be separated single whitespace.");
   Serial.println();
 
   //you need to verify the password before you can do anything else
   Serial.println("Verifying password..");
-  uint8_t response = fps.verifyPassword(0x16161616);
+  uint8_t response = fps.verifyPassword(0xFFFFFFFF);
   Serial.println();
 
   //this is optional
-  Serial.println("Setting new address..");
-  response = fps.setAddress(0x16161616);
-  Serial.println();
+  // Serial.println("Setting new address..");
+  // response = fps.setAddress(0xFFFFFFFF);
+  // Serial.println();
 }
 
 //=========================================================================//
