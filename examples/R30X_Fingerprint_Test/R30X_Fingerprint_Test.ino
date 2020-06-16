@@ -40,7 +40,7 @@ R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0xFFFFFFFF, 0xFFFFFFFF); //cu
 
 //------------------------------------------------------------------------//
 //for Arduino Uno
-// SoftwareSerial Serial1(6, 7); // RX, TX
+// SoftwareSerial Serial1(2, 3); // RX, TX
 // R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0x16161616, 0x16161616); //custom password and address
 // R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
 
@@ -54,62 +54,62 @@ R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0xFFFFFFFF, 0xFFFFFFFF); //cu
 
 uint8_t enrollFinger(uint16_t location) {
   //enroll new fingerprint
-  debugPort.println("=========================");
-  debugPort.println("Enrolling New Fingerprint");
-  debugPort.println("=========================");
+  debugPort.println(F("========================="));
+  debugPort.println(F("Enrolling New Fingerprint"));
+  debugPort.println(F("========================="));
 
   if((location > 1000) || (location < 1)) { //if not in range (1-1000)
     debugPort.println();
-    debugPort.println("Enrolling failed.");
-    debugPort.println("Bad location.");
-    debugPort.print("location = #");
+    debugPort.println(F("Enrolling failed."));
+    debugPort.println(F("Bad location."));
+    debugPort.print(F("location = #"));
     debugPort.println(location);
-    debugPort.println("Please try again.");
+    debugPort.println(F("Please try again."));
     return 1;
   }
 
   delay(4000);
   debugPort.println();
-  debugPort.println("Scan #1: Please put your finger on the sensor.");
+  debugPort.println(F("Scan #1: Please put your finger on the sensor."));
   debugPort.println();
   delay(5000);
 
   uint8_t response = fps.generateImage(); //scan the finger
 
   if(response != 0) {
-    debugPort.println("Scan #1: ERROR - Scanning failed. Please try again.");
+    debugPort.println(F("Scan #1: ERROR - Scanning failed. Please try again."));
   }
   else {
-    debugPort.println("Scan #1: Scanning success.");
+    debugPort.println(F("Scan #1: Scanning success."));
     debugPort.println();
     delay(2000);
     response = fps.generateCharacter(1);  //generate the character file from image and save to buffer 1
 
     if(response != 0) {
-      debugPort.println("Scan #1: ERROR - Template generation failed. Please try again.");
+      debugPort.println(F("Scan #1: ERROR - Template generation failed. Please try again."));
     }
     else {
       debugPort.println();
-      debugPort.println("Scan #1: Template generation success.");
+      debugPort.println(F("Scan #1: Template generation success."));
       delay(2000);
 
-      debugPort.println("Scan #2: Please put your finger on the sensor.");
+      debugPort.println(F("Scan #2: Please put your finger on the sensor."));
       delay(5000);
 
       debugPort.println();
       response = fps.generateImage(); //scan the finger for second time
 
       if(response != 0) {
-        debugPort.println("Scan #2: ERROR - Scanning failed. Please try again.");
+        debugPort.println(F("Scan #2: ERROR - Scanning failed. Please try again."));
       }
       else {
         debugPort.println();
-        debugPort.println("Scan #2: Scanning success.");
+        debugPort.println(F("Scan #2: Scanning success."));
         delay(2000);
         response = fps.generateCharacter(2);  //generate the character file from image and save to buffer 2
 
         if(response != 0) {
-          debugPort.println("Scan #2: Template generation failed. Please try again.");
+          debugPort.println(F("Scan #2: Template generation failed. Please try again."));
         }
         else {
           debugPort.println();
@@ -120,13 +120,13 @@ uint8_t enrollFinger(uint16_t location) {
             response = fps.saveTemplate(1, location); //save the template to the specified location in library
 
             if(response == 0) {
-              debugPort.print("-- Fingerprint enrolled at ID #");
+              debugPort.print(F("-- Fingerprint enrolled at ID #"));
               debugPort.print(location);
-              debugPort.println(" successfully --");
+              debugPort.println(F(" successfully --"));
             }
           }
           else if(response == FPS_RESP_ENROLLMISMATCH) {
-            debugPort.println("ERROR : Fingerprints do not belong to same finger. Please try again.");
+            debugPort.println(F("ERROR : Fingerprints do not belong to same finger. Please try again."));
           }
         }
       }
@@ -141,22 +141,47 @@ uint8_t enrollFinger(uint16_t location) {
 
 void setup() {
   Serial.begin(115200);
-  fps.begin(115200);
+  fps.begin(57600);
 
   Serial.println();
-  Serial.println("R307 Fingerprint Test");
-  Serial.println("======================");
-  Serial.println("A set of available commands is found at https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library");
-  Serial.println("All commands and parameters must be separated single whitespace.");
+  Serial.println(F("R307 Fingerprint Test"));
+  Serial.println(F("======================"));
+  Serial.println(F("A set of available commands is found at https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library"));
+  Serial.println(F("All commands and parameters must be separated single whitespace."));
   Serial.println();
+
+  //fps.portControl(0);
 
   //you need to verify the password before you can do anything else
-  Serial.println("Verifying password..");
+  Serial.println(F("Verifying password.."));
   uint8_t response = fps.verifyPassword(0xFFFFFFFF);
-  Serial.println();
-
+  //uint8_t response = fps.verifyPassword();
+  //uint8_t response = 1;
+  
+  Serial.println(F("clrlib - clear library"));
+  Serial.println(F("tmpcnt - get templates count"));
+  Serial.println(F("readsys - read system parameters"));
+  Serial.println(F("setdatlen <data length> - set data length"));
+  Serial.println(F("capranser <timeout> <start location> <quantity> - capture and range search library for fingerprint"));
+  Serial.println(F("capfulser - capture and full search the library for fingerprint"));
+  Serial.println(F("enroll <location> - enroll new fingerprint"));
+  Serial.println(F("verpwd <password> - verify 4 byte device password"));
+  Serial.println(F("setpwd <password> - set new 4 byte device password"));
+  Serial.println(F("setaddr <address> - set new 4 byte device address"));
+  Serial.println(F("setbaud <baudrate> - set the baudrate"));
+  Serial.println(F("setseclvl <level> - set security level"));
+  Serial.println(F("genimg - generate image"));
+  Serial.println(F("genchar <buffer id> - generate character file from image"));
+  Serial.println(F("gentmp - generate template from character buffers"));
+  Serial.println(F("savtmp <buffer id> <location> - save template to library from buffer"));
+  Serial.println(F("lodtmp <buffer id> <location> - load template from library to buffer"));
+  Serial.println(F("deltmp <start location> <quantity> - delete one or more templates from library"));
+  Serial.println(F("mattmp - precisely match two templates available on buffers"));
+  Serial.println(F("serlib <buffer id> <start location> <quantity> - search library for content on the buffer"));
+  Serial.println(F(""));
+  
   //this is optional
-  // Serial.println("Setting new address..");
+  // Serial.println(F("Setting new address.."));
   // response = fps.setAddress(0xFFFFFFFF);
   // Serial.println();
 }
@@ -165,6 +190,7 @@ void setup() {
 //infinite loop
 
 void loop() {
+
   uint8_t response = 0;
   String inputString = "";
   String commandString = "";
@@ -177,7 +203,7 @@ void loop() {
   //you can send up to 3 parameters
   if(Serial.available()) {  //monitor the serial interface
     inputString = Serial.readString();  //read the contents of serial buffer as string
-    Serial.print("Command : ");
+    Serial.print(F("Command : "));
     Serial.println(inputString);
     Serial.println();
 
@@ -215,19 +241,19 @@ void loop() {
     //-------------------------------------------------------------------------//
     //separate and print the received command and parameters
 
-    Serial.print("Command string = ");
+    Serial.print(F("Command string = "));
     Serial.println(commandString);
     
     if(firstParam != "") {
-      Serial.print("First param = ");
+      Serial.print(F("First param = "));
       Serial.println(firstParam);
     }
     if(secondParam != "") {
-      Serial.print("Second param = ");
+      Serial.print(F("Second param = "));
       Serial.println(secondParam);
     }
     if(thirdParam != "") {
-      Serial.print("Third param = ");
+      Serial.print(F("Third param = "));
       Serial.println(thirdParam);
     }
     
@@ -247,7 +273,7 @@ void loop() {
     //eg. tmpcnt
 
     else if(commandString == "tmpcnt") {
-      Serial.println("Reading templates count..");
+      Serial.println(F("Reading templates count.."));
       response = fps.getTemplateCount();
     }
 
@@ -279,9 +305,9 @@ void loop() {
       uint16_t timeOut = firstParam.toInt();  //first parameter in milliseconds
       uint16_t startLocation = secondParam.toInt(); //second parameter
       uint16_t count = thirdParam.toInt();  //third parameter
-      Serial.println("Capture and range search fingerprint..");
+      Serial.println(F("Capture and range search fingerprint.."));
       delay(1000);
-      Serial.println("Put your finger on the sensor..");
+      Serial.println(F("Put your finger on the sensor.."));
       delay(3000);
       response = fps.captureAndRangeSearch(timeOut, startLocation, count);
     }
@@ -291,9 +317,9 @@ void loop() {
     //eg. capfulser
 
     else if(commandString == "capfulser") {
-      Serial.println("Capture and full search fingerprint..");
+      Serial.println(F("Capture and full search fingerprint.."));
       delay(1000);
-      Serial.println("Put your finger on the sensor..");
+      Serial.println(F("Put your finger on the sensor.."));
       delay(3000);
       response = fps.captureAndFullSearch();
     }
@@ -316,7 +342,7 @@ void loop() {
 
     else if(commandString == "verpwd") {
       const char* hexString = firstParam.c_str(); //convert String object to C-style string
-      uint32_t password = strtol(hexString, NULL, 16);  //convert hex formatted C-style string to int value
+      uint32_t password = strtoul(hexString, NULL, 16);  //convert hex formatted C-style string to int value
       response = fps.verifyPassword(password);
     }
 
@@ -327,7 +353,7 @@ void loop() {
 
     else if(commandString == "setpwd") {
       const char* hexString = firstParam.c_str(); //convert String object to C-style string
-      uint32_t password = strtol(hexString, NULL, 16);  //convert hex formatted C-style string to int value
+      uint32_t password = strtoul(hexString, NULL, 16);  //convert hex formatted C-style string to int value
       response = fps.setPassword(password);
     }
 
@@ -338,7 +364,7 @@ void loop() {
 
     else if(commandString == "setaddr") {
       const char *hexString = firstParam.c_str(); //convert String object to C-style string
-      uint32_t address = strtol(hexString, NULL, 16);  //convert hex formatted C-style string to int value
+      uint32_t address = strtoul(hexString, NULL, 16);  //convert hex formatted C-style string to int value
       response = fps.setAddress(address);
     }
 
@@ -452,16 +478,19 @@ void loop() {
     //unknown command
 
     else {
-      Serial.print("Invalid command : ");
+      Serial.print(F("Invalid command : "));
       Serial.println(commandString);
     }
 
-    Serial.println("...........................");
+    //if (response)  {
+    //  Serial.print("response == ");
+    //  Serial.println(response);
+    //}
+ 
+    Serial.println(F("..........................."));
     Serial.println();
     delay(2000);
   }
 }
 
 //=========================================================================//
-
-
