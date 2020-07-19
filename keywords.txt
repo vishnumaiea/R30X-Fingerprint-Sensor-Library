@@ -6,7 +6,7 @@
 # Datatypes (KEYWORD1)
 #######################################
 
-ISL1208_RTC	KEYWORD1
+R30X_FPS	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

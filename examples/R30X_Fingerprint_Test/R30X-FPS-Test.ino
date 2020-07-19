@@ -3,7 +3,7 @@
 //                                                                         //
 //  ## R30X Fingerprint Sensor Library Example-01 ##                       //
 //                                                                         //
-//  Filename : R30X_Fingerprint_Test.ino                                   //
+//  Filename : R30X_FPS_Test.ino                                   //
 //  Description : Arduino compatible test program for Fingerprint_VMA      //
 //                library for R30X series fingerprint sensors.             //
 //  Library version : 1.2.0                                                //
@@ -13,7 +13,7 @@
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 06:05 AM 18-12-2019, Wednesday                     //
+//  Last modified : +05:30 07:16:21 PM, 19-07-2020 Sunday
 //                                                                         //
 //=========================================================================//
 //                                                                         //
@@ -26,7 +26,15 @@
 //                                                                         //
 //=========================================================================//
 
-#include "R30X_Fingerprint.h"
+#include "R30X_FPS.h"
+
+
+//=========================================================================//
+//defines
+
+//add your fingerprint scanner's password and device address here
+#define FPS_PASSWORD  0x16161616
+#define FPS_ADDRESS   0x16161616
 
 //=========================================================================//
 //initialize the object with the correct password and address
@@ -35,14 +43,14 @@
 
 //------------------------------------------------------------------------//
 //for Arduino Due
-R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0xFFFFFFFF, 0xFFFFFFFF); //custom password and address
-// R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
+R30X_FPS fps = R30X_FPS (&Serial1, FPS_PASSWORD, FPS_ADDRESS); //custom password and address
+// R30X_FPS fps = R30X_FPS (&Serial1); //use deafault password and address
 
 //------------------------------------------------------------------------//
 //for Arduino Uno
 // SoftwareSerial Serial1(2, 3); // RX, TX
-// R30X_Fingerprint fps = R30X_Fingerprint (&Serial1, 0x16161616, 0x16161616); //custom password and address
-// R30X_Fingerprint fps = R30X_Fingerprint (&Serial1); //use deafault password and address
+// R30X_FPS fps = R30X_FPS (&Serial1, 0x16161616, 0x16161616); //custom password and address
+// R30X_FPS fps = R30X_FPS (&Serial1); //use deafault password and address
 
 //========================================================================//
 //this implements the fingerprint enrolling process
@@ -141,22 +149,30 @@ uint8_t enrollFinger(uint16_t location) {
 
 void setup() {
   Serial.begin(115200);
-  fps.begin(57600);
+  fps.begin(115200);
 
   Serial.println();
-  Serial.println(F("R307 Fingerprint Test"));
-  Serial.println(F("======================"));
-  Serial.println(F("A set of available commands is found at https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library"));
-  Serial.println(F("All commands and parameters must be separated single whitespace."));
+  Serial.println(F("R30X Fingerprint Example Sketch"));
+  Serial.println(F("==============================="));
+  Serial.println(F("Source : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library"));
+  Serial.println(F("All commands and parameters must be separated by single whitespace."));
   Serial.println();
 
   //fps.portControl(0);
 
   //you need to verify the password before you can do anything else
-  Serial.println(F("Verifying password.."));
-  uint8_t response = fps.verifyPassword(0xFFFFFFFF);
+  Serial.print(F("Verifying password 0x"));
+  Serial.println(FPS_PASSWORD, HEX);
+  uint8_t response = fps.verifyPassword(FPS_PASSWORD);
   //uint8_t response = fps.verifyPassword();
   //uint8_t response = 1;
+
+  if(response == 0) {
+    Serial.println(F("Successful\n"));
+  }
+  else {
+    Serial.println(F("Failed. Check your password. Otherwise try with default one.\n"));
+  }
   
   Serial.println(F("clrlib - clear library"));
   Serial.println(F("tmpcnt - get templates count"));
@@ -487,8 +503,7 @@ void loop() {
     //  Serial.println(response);
     //}
  
-    Serial.println(F("..........................."));
-    Serial.println();
+    Serial.println(F("\n.......END OF OPERATION......."));
     delay(2000);
   }
 }

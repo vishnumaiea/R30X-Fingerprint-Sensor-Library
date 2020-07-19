@@ -3,8 +3,8 @@
 //                                                                         //
 //  ## R30X Fingerprint Sensor Library ##                                  //
 //                                                                         //
-//  Filename : R30X_Fingerprint.h                                          //
-//  Description : Header file for R30X_Fingerprint library for R30X series //
+//  Filename : R30X_FPS.h                                          //
+//  Description : Header file for R30X_FPS library for R30X series //
 //                fingerprint sensors.                                     //
 //  Library version : 1.2.0                                                //
 //  Author : Vishnu M Aiea                                                 //
@@ -13,16 +13,16 @@
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : IST 08:21 AM 12-12-2019, Thursday                      //
+//  Last modified : +05:30 07:16:21 PM, 19-07-2020 Sunday
 //                                                                         //
 //=========================================================================//
 
-#ifndef R30X_FINGERPRINT_H
-#define R30X_FINGERPRINT_H
+#ifndef R30X_FPS_H
+#define R30X_FPS_H
 
 #include "Arduino.h"
 
-#ifndef HAVE_HWSERIAL1  //if more than one hardware serial ports are not present
+#ifdef SAM_DUE  //if more than one hardware serial ports are not present
   #include "SoftwareSerial.h"
 #endif
 
@@ -32,7 +32,7 @@
 //   #define FPS_DEBUG   //uncomment this line to enable debug info to be printed
 // #endif
 
-// #define FPS_DEBUG   //uncomment this line to enable debug info to be printed
+#define FPS_DEBUG   //uncomment this line to enable debug info to be printed
 
 #define debugPort Serial  //the serisl port to which debug info will be sent
 
@@ -134,14 +134,14 @@
 //=========================================================================//
 //main class
 
-class R30X_Fingerprint {
+class R30X_FPS {
   public:
 
   #if defined(__AVR__) || defined(ESP8266)
-    R30X_Fingerprint (SoftwareSerial *ss, uint32_t password = FPS_DEFAULT_PASSWORD, uint32_t address = FPS_DEFAULT_ADDRESS);
+    R30X_FPS (SoftwareSerial *ss, uint32_t password = FPS_DEFAULT_PASSWORD, uint32_t address = FPS_DEFAULT_ADDRESS);
   #endif
   
-  R30X_Fingerprint (HardwareSerial *hs, uint32_t password = FPS_DEFAULT_PASSWORD, uint32_t address = FPS_DEFAULT_ADDRESS);
+  R30X_FPS (HardwareSerial *hs, uint32_t password = FPS_DEFAULT_PASSWORD, uint32_t address = FPS_DEFAULT_ADDRESS);
 
   //common parameters
   uint32_t devicePasswordL; //32-bit single value version of password (L = long)
