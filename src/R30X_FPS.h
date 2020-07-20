@@ -3,17 +3,17 @@
 //                                                                         //
 //  ## R30X Fingerprint Sensor Library ##                                  //
 //                                                                         //
-//  Filename : R30X_FPS.h                                          //
-//  Description : Header file for R30X_FPS library for R30X series //
+//  Filename : R30X_FPS.h                                                  //
+//  Description : Header file for R30X_FPS library for R30X series         //
 //                fingerprint sensors.                                     //
-//  Library version : 1.2.0                                                //
+//  Library version : 1.3.1                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : +05:30 07:16:21 PM, 19-07-2020 Sunday
+//  Last modified : +05:30 05:58:28 PM, 20-07-2020 Monday
 //                                                                         //
 //=========================================================================//
 
@@ -22,9 +22,11 @@
 
 #include "Arduino.h"
 
-#ifdef SAM_DUE  //if more than one hardware serial ports are not present
+#if defined(__AVR__) || defined(ESP8266)   //if more than one hardware serial ports are not present
   #include "SoftwareSerial.h"
 #endif
+
+// #include "SoftwareSerial.h"
 
 //=========================================================================//
 
@@ -144,15 +146,22 @@ class R30X_FPS {
   R30X_FPS (HardwareSerial *hs, uint32_t password = FPS_DEFAULT_PASSWORD, uint32_t address = FPS_DEFAULT_ADDRESS);
 
   //common parameters
+  uint16_t startCodeL; //packet start marker
+  uint8_t startCode[2]; //packet start marker
+
   uint32_t devicePasswordL; //32-bit single value version of password (L = long)
   uint32_t deviceAddressL;  //module's address
-  uint16_t startCodeL; //packet start marker
   uint8_t devicePassword[4]; //array version of password
   uint8_t deviceAddress[4]; //device address as an array
-  uint8_t startCode[2]; //packet start marker
-  uint32_t deviceBaudrate;  //UART speed
-  uint8_t securityLevel;  //threshold level for fingerprint matching
+  
+  uint16_t statusRegister;  //contents of the FPS status register
+  uint16_t systemID;  //fixed value 0x0009
+  uint16_t librarySize; //library memory size
+  uint16_t securityLevel;  //threshold level for fingerprint matching
+  uint16_t dataPacketLengthCode;
   uint16_t dataPacketLength; //the max length of data in packet. can be 32, 64, 128 or 256
+  uint16_t baudMultiplier;  //value between 1-12
+  uint32_t deviceBaudrate;  //UART speed (9600 * baud multiplier)
 
   //transmit packet parameters
   uint8_t txPacketType; //type of packet
@@ -177,7 +186,6 @@ class R30X_FPS {
   uint16_t fingerId; //location of fingerprint in the library
   uint16_t matchScore;  //the match score of comparison of two fingerprints
   uint16_t templateCount; //total number of fingerprint templates in the library
-  uint16_t statusRegister;  //contents of the FPS status register
 
   void begin (uint32_t baud); //initializes the communication port
   void resetParameters (void); //initialize and reset and all parameters
@@ -185,6 +193,7 @@ class R30X_FPS {
   uint8_t setPassword (uint32_t password);  //set FPS password
   uint8_t setAddress (uint32_t address = FPS_DEFAULT_ADDRESS);  //set FPS address
   uint8_t setBaudrate (uint32_t baud);  //set UART baudrate, default is 57000
+  uint8_t reinitializePort (uint32_t baud);
   uint8_t setSecurityLevel (uint8_t level); //set the threshold for fingerprint matching
   uint8_t setDataLength (uint16_t length); //set the max length of data in a packet
   uint8_t portControl (uint8_t value);  //turn the comm port on or off

@@ -3,17 +3,17 @@
 //                                                                         //
 //  ## R30X Fingerprint Sensor Library ##                                  //
 //                                                                         //
-//  Filename : R30X_FPS.cpp                                        //
-//  Description : CPP file for R30X_FPS library for R30X series    //
+//  Filename : R30X_FPS.cpp                                                //
+//  Description : CPP file for R30X_FPS library for R30X series            //
 //                fingerprint sensors.                                     //
-//  Library version : 1.2.0                                                //
+//  Library version : 1.3.1                                                //
 //  Author : Vishnu M Aiea                                                 //
 //  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
 //  Author's website : https://www.vishnumaiea.in                          //
 //  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
 //  License : MIT                                                          //
 //                                                                         //
-//  Last modified : +05:30 06:59:32 PM, 19-07-2020 Sunday
+//  Last modified : +05:30 06:10:01 PM, 20-07-2020 Monday
 //                                                                         //
 //=========================================================================//
 
@@ -98,8 +98,11 @@ void R30X_FPS::begin (uint32_t baudrate) {
 
 void R30X_FPS::resetParameters (void) {
   deviceBaudrate = FPS_DEFAULT_BAUDRATE;  //this will be later altered by begin()
+  baudMultiplier = uint16_t(FPS_DEFAULT_BAUDRATE / 9600);
   securityLevel = FPS_DEFAULT_SECURITY_LEVEL;  //threshold level for fingerprint matching
   dataPacketLength = FPS_DEFAULT_RX_DATA_LENGTH;
+  librarySize = 1000;
+  systemID = 0;
 
   txPacketType = FPS_ID_COMMANDPACKET; //type of packet
   txInstructionCode = FPS_CMD_VERIFYPASSWORD; //
@@ -262,7 +265,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
   if(serialBufferLength == 0) {
     #ifdef FPS_DEBUG
       debugPort.println(F("Serial timed out."));
-      debugPort.println(F("This usually means the baud rate is not correct."));
+      debugPort.println(F("This usually means the baud rate is not correct or the scanner has no power."));
     #endif
     return FPS_RX_TIMEOUT;
   }
@@ -462,7 +465,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
 
           if(rxPacketChecksumL == tempSum) { //check if the calculated checksum matches the received one
             #ifdef FPS_DEBUG
-              debugPort.println(F("Checksum matching success."));
+              debugPort.println(F("Checksum matching successful."));
               debugPort.print(F("Received = "));
               debugPort.print(rxPacketChecksum[1], HEX);
               debugPort.print(F("-"));
@@ -497,6 +500,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
               debugPort.print(rxPacketLength[1], HEX);
               debugPort.print(F("-"));
               debugPort.println(rxPacketLength[0], HEX);
+              debugPort.println();
             #endif
 
             return FPS_RX_OK; //packet read success
@@ -504,7 +508,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
 
           else { //if the checksums do not match
             #ifdef FPS_DEBUG
-              debugPort.println(F("Checksums match fail."));
+              debugPort.println(F("Checksum matching failed."));
               debugPort.print(F("Received = "));
               debugPort.print(rxPacketChecksum[1], HEX);
               debugPort.print(F("-"));
@@ -539,6 +543,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
               debugPort.print(rxPacketLength[1], HEX);
               debugPort.print(F("-"));
               debugPort.println(rxPacketLength[0], HEX);
+              debugPort.println();
             #endif
 
             return FPS_RX_BADPACKET;  //then that's an error
@@ -563,7 +568,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
 
           if(rxPacketChecksumL == tempSum) { //check if the calculated checksum matches the received one
             #ifdef FPS_DEBUG
-              debugPort.println(F("Checksums match success."));
+              debugPort.println(F("Checksum matching successful."));
               debugPort.print(F("Received = "));
               debugPort.print(rxPacketChecksum[1], HEX);
               debugPort.print(F("-"));
@@ -605,6 +610,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
               debugPort.print(rxPacketLength[1], HEX);
               debugPort.print(F("-"));
               debugPort.println(rxPacketLength[0], HEX);
+              debugPort.println();
             #endif
 
             return FPS_RX_OK; //packet read success
@@ -612,7 +618,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
 
           else { //if the checksums do not match
             #ifdef FPS_DEBUG
-              debugPort.println(F("Checksums match fail."));
+              debugPort.println(F("Checksum matching failed."));
               debugPort.print(F("Received = "));
               debugPort.print(rxPacketChecksum[1], HEX);
               debugPort.print(F("-"));
@@ -654,6 +660,7 @@ uint8_t R30X_FPS::receivePacket (uint32_t timeout) {
               debugPort.print(rxPacketLength[1], HEX);
               debugPort.print(F("-"));
               debugPort.println(rxPacketLength[0], HEX);
+              debugPort.println();
             #endif
 
             return FPS_RX_BADPACKET;  //then that's an error
@@ -804,7 +811,7 @@ uint8_t R30X_FPS::setAddress (uint32_t address) {
   if(response == FPS_RX_OK) { //if the response packet is valid
     if((rxConfirmationCode == FPS_RESP_OK) || (rxConfirmationCode == 0x20U)) { //the confrim code will be saved when the response is received
       #ifdef FPS_DEBUG
-        debugPort.println(F("Setting address success."));
+        debugPort.println(F("Setting address successful."));
         debugPort.print(F("New address = "));
         debugPort.println(deviceAddressL, HEX);
       #endif
@@ -830,8 +837,15 @@ uint8_t R30X_FPS::setAddress (uint32_t address) {
 //saved after successful execution
 
 uint8_t R30X_FPS::setBaudrate (uint32_t baud) {
-  uint8_t baudNumber = baud / 9600; //check is the baudrate is a multiple of 9600
+  uint8_t baudNumber = baud / 9600; //check if the baudrate is a multiple of 9600
   uint8_t dataArray[2] = {0};
+
+  #ifdef FPS_DEBUG
+    debugPort.print(F("Input baudrate = "));
+    debugPort.println(baud);
+    debugPort.print(F("Baud number = "));
+    debugPort.println(baudNumber);
+  #endif
 
   if((baudNumber > 0) && (baudNumber < 13)) { //should be between 1 (9600bps) and 12 (115200bps)
     dataArray[0] = baudNumber;  //low byte
@@ -844,20 +858,10 @@ uint8_t R30X_FPS::setBaudrate (uint32_t baud) {
       if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
         deviceBaudrate = baud;
         
-        if (hwSerial) { //if using hardware serial
-          hwSerial->end();  //end the existing serial port
-          hwSerial->begin(deviceBaudrate);  //restart the port with new baudrate
-        }
-
-        #if defined(__AVR__) || defined(ESP8266)
-          if (swSerial) { //if using software serial
-            swSerial->end();  //stop existing serial port
-            swSerial->begin(deviceBaudrate);  //restart the port with new baudrate
-          }
-        #endif
+        reinitializePort(deviceBaudrate);
 
         #ifdef FPS_DEBUG
-          debugPort.println(F("Setting baudrate success."));
+          debugPort.println(F("Setting baudrate successful."));
         #endif
         return FPS_RESP_OK; //baudrate setting complete
       }
@@ -884,6 +888,29 @@ uint8_t R30X_FPS::setBaudrate (uint32_t baud) {
 }
 
 //=========================================================================//
+//reinitializes the serial port with a new baud rate, without changing the
+//device configuration. this is useful when you don't already know the
+//device's configured baud rate
+
+uint8_t R30X_FPS::reinitializePort(uint32_t baud) {
+  if(hwSerial) { //if using hardware serial
+    hwSerial->end();  //end the existing serial port
+    hwSerial->begin(baud);  //restart the port with new baudrate
+  }
+
+  #if defined(__AVR__) || defined(ESP8266)
+    if (swSerial) { //if using software serial
+      swSerial->end();  //stop existing serial port
+      swSerial->begin(baud);  //restart the port with new baudrate
+    }
+  #endif
+
+  #ifdef FPS_DEBUG
+    debugPort.println(F("Reinitialized port."));
+  #endif
+}
+
+//=========================================================================//
 //change the security level - or the threshold for matching two fingerprint
 //templates
 
@@ -900,7 +927,7 @@ uint8_t R30X_FPS::setSecurityLevel (uint8_t level) {
     if(response == FPS_RX_OK) { //if the response packet is valid
       if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
         #ifdef FPS_DEBUG
-          debugPort.println(F("Setting new security level success."));
+          debugPort.println(F("Setting new security level successful."));
           debugPort.print(F("Old value = "));
           debugPort.println(securityLevel, HEX);
           debugPort.print(F("New value = "));
@@ -962,7 +989,7 @@ uint8_t R30X_FPS::setDataLength (uint16_t length) {
         dataPacketLength = length;  //save the new data length
 
         #ifdef FPS_DEBUG
-          debugPort.println(F("Setting data length success."));
+          debugPort.println(F("Setting data length successful."));
           debugPort.print(F("dataPacketLength = "));
           debugPort.println(dataPacketLength);
         #endif
@@ -992,14 +1019,14 @@ uint8_t R30X_FPS::setDataLength (uint16_t length) {
 }
 
 //=========================================================================//
-//turns on/off the communication port
+//turns the communication port on/off
 
 uint8_t R30X_FPS::portControl (uint8_t value) {
   #ifdef FPS_DEBUG
     if(value == 1)
-      debugPort.println(F("Turning port on.."));
+      debugPort.println(F("Turning on port.."));
     else
-      debugPort.println(F("Turning port off.."));
+      debugPort.println(F("Turning off port.."));
   #endif
 
   uint8_t dataArray[1] = {0};
@@ -1013,15 +1040,15 @@ uint8_t R30X_FPS::portControl (uint8_t value) {
       if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
         #ifdef FPS_DEBUG
           if(value == 1)
-            debugPort.println(F("Turning port on success."));
+            debugPort.println(F("Turning on port successful."));
           else
-            debugPort.println(F("Turning port off success."));
+            debugPort.println(F("Turning off port successful."));
         #endif
         return FPS_RESP_OK; //port setting complete
       }
       else {
         #ifdef FPS_DEBUG
-          debugPort.println(F("Turning port on/off failed."));
+          debugPort.println(F("Turning on/off port failed."));
           debugPort.print(F("rxConfirmationCode = "));
           debugPort.println(rxConfirmationCode, HEX);
         #endif
@@ -1050,30 +1077,46 @@ uint8_t R30X_FPS::readSysPara() {
 
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
-      statusRegister = uint16_t(rxDataBuffer[15] << 8) + rxDataBuffer[14];  //high byte + low byte
-      securityLevel = rxDataBuffer[8];
+      statusRegister = (uint16_t(rxDataBuffer[15]) << 8) + rxDataBuffer[14];  //high byte + low byte
+      systemID = (uint16_t(rxDataBuffer[13]) << 8) + rxDataBuffer[12];
+      librarySize = (uint16_t(rxDataBuffer[11]) << 8) + rxDataBuffer[10];
+      securityLevel = (uint16_t(rxDataBuffer[9]) << 8) + rxDataBuffer[8];
 
-      if(rxDataBuffer[2] == 0)
+      deviceAddressL = (uint32_t(rxDataBuffer[7]) << 24) + (uint32_t(rxDataBuffer[6]) << 16) + (uint32_t(rxDataBuffer[5]) << 8) + uint32_t(rxDataBuffer[4]);
+      
+      dataPacketLengthCode = (uint16_t(rxDataBuffer[3]) << 8) + rxDataBuffer[2];
+      baudMultiplier = (uint16_t(rxDataBuffer[1]) << 8) + rxDataBuffer[0];
+
+      if(dataPacketLengthCode == 0)
         dataPacketLength = 32;
-      else if(rxDataBuffer[2] == 1)
+      else if(dataPacketLengthCode == 1)
         dataPacketLength = 64;
-      else if(rxDataBuffer[2] == 2)
+      else if(dataPacketLengthCode == 2)
         dataPacketLength = 128;
-      else if(rxDataBuffer[2] == 3)
+      else if(dataPacketLengthCode == 3)
         dataPacketLength = 256;
 
-      deviceBaudrate = rxDataBuffer[0] * 9600;  //baudrate is retrieved as a multiplier
+      deviceBaudrate = uint32_t(baudMultiplier * 9600);  //baudrate is retrieved as a multiplier
 
       #ifdef FPS_DEBUG
-        debugPort.println(F("Reading system parameters success."));
-        debugPort.print(F("statusRegister = "));
-        debugPort.println(statusRegister);
-        debugPort.print(F("securityLevel = "));
-        debugPort.println(securityLevel);
-        debugPort.print(F("dataPacketLength = "));
-        debugPort.println(dataPacketLength);
+        debugPort.println(F("Reading system parameters successful."));
+        debugPort.print(F("statusRegister = 0x"));
+        debugPort.println(statusRegister, HEX);
+        debugPort.print(F("systemID = 0x"));
+        debugPort.println(systemID, HEX);
+        debugPort.print(F("librarySize = "));
+        debugPort.println(librarySize);
+        debugPort.print(F("securityLevel = 0x"));
+        debugPort.println(securityLevel, HEX);
+        debugPort.print(F("deviceAddressL = 0x"));
+        debugPort.println(deviceAddressL, HEX);
+        debugPort.print(F("dataPacketLengthCode = 0x"));
+        debugPort.println(dataPacketLengthCode, HEX);
+        debugPort.print(F("baudMultiplier = 0x"));
+        debugPort.println(baudMultiplier, HEX);
         debugPort.print(F("deviceBaudrate = "));
-        debugPort.println(deviceBaudrate);
+        debugPort.print(deviceBaudrate);
+        debugPort.println(F(" bps"));
       #endif
 
       return FPS_RESP_OK;
@@ -1105,10 +1148,10 @@ uint8_t R30X_FPS::getTemplateCount() {
 
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
-      templateCount = uint16_t(rxDataBuffer[1] << 8) + rxDataBuffer[0];  //high byte + low byte
+      templateCount = (uint16_t(rxDataBuffer[1]) << 8) + rxDataBuffer[0];  //high byte + low byte
 
       #ifdef FPS_DEBUG
-        debugPort.println(F("Reading template count success."));
+        debugPort.println(F("Reading template count successful."));
         debugPort.print(F("templateCount = "));
         debugPort.println(templateCount);
       #endif
@@ -1197,12 +1240,12 @@ uint8_t R30X_FPS::captureAndRangeSearch (uint16_t captureTimeout, uint16_t start
 
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
-      fingerId = uint16_t(rxDataBuffer[3] << 8) + rxDataBuffer[2];  //high byte + low byte
+      fingerId = (uint16_t(rxDataBuffer[3]) << 8) + rxDataBuffer[2];  //high byte + low byte
       fingerId += 1;  //because IDs start from #1
-      matchScore = uint16_t(rxDataBuffer[1] << 8) + rxDataBuffer[0];  //data length will be 4 here
+      matchScore = (uint16_t(rxDataBuffer[1]) << 8) + rxDataBuffer[0];  //data length will be 4 here
 
       #ifdef FPS_DEBUG
-        debugPort.println(F("Capture and range search success."));
+        debugPort.println(F("Capture and range search successful."));
         debugPort.print(F("fingerId = #"));
         debugPort.println(fingerId);
         debugPort.print(F("matchScore = "));
@@ -1243,12 +1286,12 @@ uint8_t R30X_FPS::captureAndFullSearch () {
 
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
-      fingerId = uint16_t(rxDataBuffer[3] << 8) + rxDataBuffer[2];  //high byte + low byte
+      fingerId = (uint16_t(rxDataBuffer[3]) << 8) + rxDataBuffer[2];  //high byte + low byte
       fingerId += 1;  //because IDs start from #1
-      matchScore = uint16_t(rxDataBuffer[1] << 8) + rxDataBuffer[0];  //data length will be 4 here
+      matchScore = (uint16_t(rxDataBuffer[1]) << 8) + rxDataBuffer[0];  //data length will be 4 here
 
       #ifdef FPS_DEBUG
-        debugPort.println(F("Capture and full search success."));
+        debugPort.println(F("Capture and full search successful."));
         debugPort.print(F("fingerId = #"));
         debugPort.println(fingerId);
         debugPort.print(F("matchScore = "));
@@ -1425,7 +1468,7 @@ uint8_t R30X_FPS::generateTemplate () {
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
       #ifdef FPS_DEBUG
-        debugPort.println(F("Generating template success."));
+        debugPort.println(F("Generating template successful."));
       #endif
       return FPS_RESP_OK; //just the confirmation code only
     }
@@ -1693,7 +1736,7 @@ uint8_t R30X_FPS::clearLibrary () {
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
       #ifdef FPS_DEBUG
-        debugPort.println(F("Clearing library success."));
+        debugPort.println(F("Clearing library successful."));
       #endif
       return FPS_RESP_OK; //just the confirmation code only
     }
@@ -1725,7 +1768,7 @@ uint8_t R30X_FPS::matchTemplates () {
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
       #ifdef FPS_DEBUG
-        debugPort.println(F("Matching templates success."));
+        debugPort.println(F("Matching templates successful."));
       #endif
 
       matchScore = uint16_t(rxDataBuffer[1] << 8) + rxDataBuffer[0];
@@ -1808,9 +1851,9 @@ uint8_t R30X_FPS::searchLibrary (uint8_t bufferId, uint16_t startLocation, uint1
 
   if(response == FPS_RX_OK) { //if the response packet is valid
     if(rxConfirmationCode == FPS_RESP_OK) { //the confirm code will be saved when the response is received
-      fingerId = uint16_t(rxDataBuffer[3] << 8) + rxDataBuffer[2];  //add high byte and low byte
+      fingerId = (uint16_t(rxDataBuffer[3]) << 8) + rxDataBuffer[2];  //add high byte and low byte
       fingerId += 1;  //because IDs start from #1
-      matchScore = uint16_t(rxDataBuffer[1] << 8) + rxDataBuffer[0];  //add high byte and low byte
+      matchScore = (uint16_t(rxDataBuffer[1]) << 8) + rxDataBuffer[0];  //add high byte and low byte
       
       #ifdef FPS_DEBUG
         debugPort.println(F("Buffer content found in library."));

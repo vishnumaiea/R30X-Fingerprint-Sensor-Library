@@ -1,29 +1,32 @@
 
 //=========================================================================//
-//                                                                         //
-//  ## R30X Fingerprint Sensor Library Example-01 ##                       //
-//                                                                         //
-//  Filename : R30X_FPS_Test.ino                                   //
-//  Description : Arduino compatible test program for Fingerprint_VMA      //
-//                library for R30X series fingerprint sensors.             //
-//  Library version : 1.2.0                                                //
-//  Author : Vishnu M Aiea                                                 //
-//  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library   //
-//  Author's website : https://www.vishnumaiea.in                          //
-//  Initial release : IST 07:35 PM, 08-04-2019, Monday                     //
-//  License : MIT                                                          //
-//                                                                         //
-//  Last modified : +05:30 06:59:32 PM, 19-07-2020 Sunday
-//                                                                         //
+//
+//  ## R30X Fingerprint Sensor Library Example-01 ##
+//
+//  Filename : R30X_FPS_Test.ino
+//  Description : Arduino compatible test program for Fingerprint_VMA
+//                library for R30X series fingerprint sensors.
+//  Library version : 1.3.1
+//  Author : Vishnu M Aiea
+//  Src : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library
+//  Author's website : https://www.vishnumaiea.in
+//  Initial release : IST 07:35 PM, 08-04-2019, Monday
+//  License : MIT
+//  
+//  Last modified : +05:30 06:21:15 PM, 20-07-2020 Monday
+//  
 //=========================================================================//
-//                                                                         //
-//  This example was written for Arduino Due and uses Serial2 port of the  //
-//  Due. If you want to compile it for Uno, pass Serial or SoftwareSerial  //
-//  objects. Also, you need to disable debug info by commenting out the    //
-//  FPS_DEBUG define statement in the header file. It is done be default.  //
-//  This is because the strings used to print the debug info will overflow //
-//  the RAM. It's not a problem with Due. Refer the tutorial for more info.//
-//                                                                         //
+//
+//  Some tips and info.
+//
+//  Example sketch was tested with Arduino Due and Uno.
+//  Disable debug info by commenting out FPS_DEBUG line to save memory.
+//  Strings are stored in flash memroy.
+//  Use correct baud rate, device address and device passowrd.
+//  Use software serial port if a second hardware port is not available
+//  Not all boards support all baud rates. If the data you receive is
+//  corrupted, then use a lower baud rate.
+//
 //=========================================================================//
 
 #include "R30X_FPS.h"
@@ -33,23 +36,23 @@
 //defines
 
 //add your fingerprint scanner's password and device address here
-#define FPS_PASSWORD  0x16161616
+#define FPS_PASSWORD  0x16161616  //default password and address is 0xFFFFFFFF
 #define FPS_ADDRESS   0x16161616
 
 //=========================================================================//
 //initialize the object with the correct password and address
 //if you want to use the deafault values, pass nothing
-//Serial1, Serial2 etc are only available for Due and Mega. Pass SoftwareSerial object for Uno etc
+//Serial1, Serial2 etc are only available for Due and Mega. Pass SoftwareSerial object for Uno, Nano etc
 
 //------------------------------------------------------------------------//
-//for Arduino Due
-R30X_FPS fps = R30X_FPS (&Serial1, FPS_PASSWORD, FPS_ADDRESS); //custom password and address
+// # # # # # # Arduino Due
+// R30X_FPS fps = R30X_FPS (&Serial1, FPS_PASSWORD, FPS_ADDRESS); //custom password and address
 // R30X_FPS fps = R30X_FPS (&Serial1); //use deafault password and address
 
 //------------------------------------------------------------------------//
-//for Arduino Uno
-// SoftwareSerial Serial1(2, 3); // RX, TX
-// R30X_FPS fps = R30X_FPS (&Serial1, 0x16161616, 0x16161616); //custom password and address
+// # # # # # Arduino Uno
+SoftwareSerial Serial1(2, 3); //RX, TX
+R30X_FPS fps = R30X_FPS (&Serial1, FPS_PASSWORD, FPS_ADDRESS); //custom password and address
 // R30X_FPS fps = R30X_FPS (&Serial1); //use deafault password and address
 
 //========================================================================//
@@ -148,8 +151,10 @@ uint8_t enrollFinger(uint16_t location) {
 //Arduino setup function
 
 void setup() {
+  //not all boards support all baud rates
+  //check your board's documentation for more info
   Serial.begin(115200);
-  fps.begin(115200);
+  fps.begin(57600);
 
   Serial.println();
   Serial.println(F("R30X Fingerprint Example Sketch"));
@@ -168,12 +173,17 @@ void setup() {
   //uint8_t response = 1;
 
   if(response == 0) {
-    Serial.println(F("Successful\n"));
+    #if !defined(FPS_DEBUG)
+      Serial.println(F("Successful\n"));
+    #else
+      Serial.println();
+    #endif
   }
   else {
     Serial.println(F("Failed. Check your password. Otherwise try with default one.\n"));
   }
   
+  Serial.println(F("----- COMMANDS -----"));
   Serial.println(F("clrlib - clear library"));
   Serial.println(F("tmpcnt - get templates count"));
   Serial.println(F("readsys - read system parameters"));
@@ -185,6 +195,7 @@ void setup() {
   Serial.println(F("setpwd <password> - set new 4 byte device password"));
   Serial.println(F("setaddr <address> - set new 4 byte device address"));
   Serial.println(F("setbaud <baudrate> - set the baudrate"));
+  Serial.println(F("reinitprt <baudrate> - reinitialize the port without changing device configuration"));
   Serial.println(F("setseclvl <level> - set security level"));
   Serial.println(F("genimg - generate image"));
   Serial.println(F("genchar <buffer id> - generate character file from image"));
@@ -221,7 +232,7 @@ void loop() {
     inputString = Serial.readString();  //read the contents of serial buffer as string
     Serial.print(F("Command : "));
     Serial.println(inputString);
-    Serial.println();
+    // Serial.println();
 
     //-------------------------------------------------------------------------//
 
@@ -395,6 +406,17 @@ void loop() {
     }
 
     //-------------------------------------------------------------------------//
+    //set baudrate
+    //baudrate must be integer multiple of 96000. max is 115200
+    //eg. setbaud 115200
+
+    else if(commandString == "reinitprt") {
+      uint32_t baudrate = firstParam.toInt();
+      fps.reinitializePort(baudrate);
+      Serial.println(F("No change in device configuration."));
+    }
+
+    //-------------------------------------------------------------------------//
     //set security level
     //security level value must be 1-5
     //deafault is usually 2
@@ -503,7 +525,7 @@ void loop() {
     //  Serial.println(response);
     //}
  
-    Serial.println(F("\n.......END OF OPERATION......."));
+    Serial.println(F("\n.......END OF OPERATION.......\n"));
     delay(2000);
   }
 }
