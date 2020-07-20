@@ -11,7 +11,7 @@ This is an Arduino compatible library for **R30X** series optical fingerprint se
 
 A detailed tutorial on interfacing the modules and using the library is available on my project website here : https://www.vishnumaiea.in/projects/hardware/interfacing-r307-optical-fingerprint-scanner-with-arduino. I still need to implement some functions for importing and exporting fingerprint templates and images from the sensor to the computer.
 
-The example sketch was written for **Arduino Due** and **R307** fingerprint sensor. To wire up, connect the TX and RX pins to the TX1 and RX1 pins of Due or Mega. If you're using Uno or similar boards with only one UART, use **SoftwareSerial** for the fingerprint sensor and hardware UART for debugging. The example can invoke all implemented functions from a serial terminal with short commands and parameters. The list of available commands are,
+The example sketch was tested with **Arduino Due** and **Arduino Uno** using **R307** fingerprint scanner. To wire up, connect the TX and RX pins to the TX1 and RX1 pins of Due or Mega. If you're using Uno or similar boards with only one UART, use **SoftwareSerial** for the fingerprint sensor and hardware UART for debugging. The example can invoke all implemented functions from a serial terminal with short commands and input parameters. Below is the list of available commands.
 
 - **clrlib** - clear library
 - **tmpcnt** - get templates count
