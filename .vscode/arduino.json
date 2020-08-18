@@ -2,5 +2,5 @@
     "board": "arduino:avr:uno",
     "programmer": "USBasp",
     "port": "COM32",
-    "sketch": "Examples\\R30X_Fingerprint_Test\\R30X_Fingerprint_Test.ino"
+    "sketch": "Examples\\R30X_FPS_Test\\R30X_FPS_Test.ino"
 }
