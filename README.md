@@ -2,7 +2,7 @@
 An Arduino compatible library for **R30X** series optical fingerprint sensor/scanner from Hangzhou Grow Technology. The library is written in a manner to be easily readable and thus modifiable.
 
 - Latest version : ![GitHub release (latest by date)](https://img.shields.io/github/v/release/vishnumaiea/R30X-Fingerprint-Sensor-Library?style=flat)
-- Author : ***Vishnu Mohanan** (@vishnumaiea)
+- Author : **Vishnu Mohanan** (@vishnumaiea)
 - Source : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library
 - Author's website : www.vishnumaiea.in
 - Initial release : +05:30 07:35 PM, 08-04-2019, Monday
