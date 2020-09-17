@@ -1,20 +1,33 @@
 # R30X-Fingerprint-Sensor-Library
-This is an Arduino compatible library for **R30X** series optical fingerprint sensor/scanner from Hangzhou Grow Technology. The library is written in a manner to be easily readable and thus modifiable.
+An Arduino compatible library for **R30X** series optical fingerprint sensor/scanner from Hangzhou Grow Technology. The library is written in a manner to be easily readable and thus modifiable.
 
-- Library version : 1.3.1
-- Author : Vishnu Mohanan (@vishnumaiea)
+- Latest version : ![GitHub release (latest by date)](https://img.shields.io/github/v/release/vishnumaiea/R30X-Fingerprint-Sensor-Library?style=flat)
+- Author : ***Vishnu Mohanan** (@vishnumaiea)
 - Source : https://github.com/vishnumaiea/R30X-Fingerprint-Sensor-Library
 - Author's website : www.vishnumaiea.in
 - Initial release : +05:30 07:35 PM, 08-04-2019, Monday
 - Last updated : +05:30 06:10:01 PM, 20-07-2020 Monday
-- License : MIT
+- License : [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-A detailed tutorial on interfacing the modules and using the library is available on my project website here : https://www.vishnumaiea.in/projects/hardware/interfacing-r307-optical-fingerprint-scanner-with-arduino (this repo may be newer than what's described in the tutorial). I still need to implement some functions for importing and exporting fingerprint templates and images from and to the sensor.
+## Tutorial
 
-To install this library to your computer, open the _Library Manager_ from the _Arduino IDE_ and search for "R30X fingerprint scanner"
-. Then install the latest version from the list.
+A detailed tutorial on interfacing the modules and using the library is available on my project website : https://www.vishnumaiea.in/projects/hardware/interfacing-r307-optical-fingerprint-scanner-with-arduino (this repo may be newer than what's described in the tutorial). I still need to implement two functions for importing and exporting fingerprint templates and images from and to the sensor.
 
-The example sketch was tested with **Arduino Due** and **Arduino Uno** using **R307** fingerprint scanner. To wire up, connect the TX and RX pins to the TX1 and RX1 pins of Due or Mega. If you're using Uno or similar boards with only one hardware UART, use **SoftwareSerial** for the fingerprint sensor and hardware UART for debugging. The example can invoke all implemented functions from a serial terminal with short commands and input parameters. Below is the list of available commands.
+## Installing
+
+To install the library to your computer, open the _**Library Manager**_ from the _**Arduino IDE**_ and search for "R30X fingerprint scanner". Then install the latest version from the list.
+
+## Tested Boards
+
+The library was tested with **Arduino Due** and **Arduino Uno** using **R307** fingerprint scanner. To wire up, connect the TX and RX pins to the TX1 and RX1 pins of Due or Mega. If you're using Uno or similar boards with only one hardware UART, use **SoftwareSerial** for the fingerprint sensor and hardware UART for debugging.
+
+Other Arduino compatible microcontrollers and boards such as ESP8266, ESP32, STM32 Nucleo, TI Launchpad are also expected to support
+
+## Example
+
+The example sketch can invoke all implemented functions from a serial terminal with short commands and input parameters. Below is the list of available commands.
+
+All commands and parameters must be separated by **single whitespace**.
 
 - **clrlib** - clear library
 - **tmpcnt** - get templates count
@@ -37,5 +50,3 @@ The example sketch was tested with **Arduino Due** and **Arduino Uno** using **R
 - **deltmp \<start location\> \<quantity\>** - delete one or more templates from library
 - **mattmp** - precisely match two templates available on buffers
 - **serlib \<buffer id\> \<start location\> \<quantity\>** - search library for content on the buffer
-
-All commands and parameters must be separated by **single whitespace**.
