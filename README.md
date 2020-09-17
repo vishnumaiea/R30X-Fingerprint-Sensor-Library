@@ -21,7 +21,7 @@ To install the library to your computer, open the _**Library Manager**_ from the
 
 The library was tested with **Arduino Due** and **Arduino Uno** using **R307** fingerprint scanner. To wire up, connect the TX and RX pins to the TX1 and RX1 pins of Due or Mega. If you're using Uno or similar boards with only one hardware UART, use **SoftwareSerial** for the fingerprint sensor and hardware UART for debugging.
 
-Other Arduino compatible microcontrollers and boards such as ESP8266, ESP32, STM32 Nucleo, TI Launchpad are also expected to support
+Even though not tested, the library is expected to work with other Arduino compatible microcontrollers and boards such as ESP8266, ESP32, STM32 Nucleo, TI Launchpad etc.
 
 ## Example
 
