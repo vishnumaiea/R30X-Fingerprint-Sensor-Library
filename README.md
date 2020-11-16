@@ -64,4 +64,4 @@ When something is not working, upload the example sketch to your board and run t
 
 2. **Getting "Invalid command" message**
 
-    If your serial terminal application is sending NL/CR characters automatically, try turing this off. For example, you can turn of this at Arduino serial monitor.
+    If your serial terminal application is sending NL/CR characters automatically, try turing this off. For example, you can turn this feature off at Arduino serial monitor.
