@@ -50,3 +50,10 @@ All commands and parameters must be separated by **single whitespace**.
 - **deltmp \<start location\> \<quantity\>** - delete one or more templates from library
 - **mattmp** - precisely match two templates available on buffers
 - **serlib \<buffer id\> \<start location\> \<quantity\>** - search library for content on the buffer
+
+## Troubleshooting
+
+When something is not working, upload the example sketch to your board and run the commands to check if they're working as expected.
+
+1. **Getting "Password is not correct" message
+
