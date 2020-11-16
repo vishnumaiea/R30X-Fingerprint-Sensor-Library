@@ -55,5 +55,11 @@ All commands and parameters must be separated by **single whitespace**.
 
 When something is not working, upload the example sketch to your board and run the commands to check if they're working as expected.
 
-1. **Getting "Password is not correct" message
+1. **Getting "Password is not correct" message**
+New modules will be coming with the default password and device address 0xFFFFFFFF. If the example sketch complains about wrong password, then try running the **setpwd** command. For example,
 
+    ``` setpwd FFFFFFFF ```
+
+
+2. **Getting "Invalid command" message**
+If your serial terminal application is sending NL/CR characters automatically, try turing this off. For example, you can turn of this at Arduino serial monitor.
