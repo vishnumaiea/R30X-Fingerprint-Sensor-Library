@@ -36,8 +36,8 @@
 //defines
 
 //add your fingerprint scanner's password and device address here
-#define FPS_PASSWORD  0x16161616  //default password and address is 0xFFFFFFFF
-#define FPS_ADDRESS   0x16161616
+#define FPS_PASSWORD  0xFFFFFFFF  //default password and address is 0xFFFFFFFF
+#define FPS_ADDRESS   0xFFFFFFFF
 
 //=========================================================================//
 //initialize the object with the correct password and address
