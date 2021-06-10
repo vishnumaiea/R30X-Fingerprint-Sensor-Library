@@ -11,7 +11,7 @@ An Arduino compatible library for **R30X** series optical fingerprint sensor/sca
 
 ## Tutorial
 
-A detailed tutorial on interfacing the modules and using the library is available on my project website : https://www.vishnumaiea.in/projects/hardware/interfacing-r307-optical-fingerprint-scanner-with-arduino (this repo may be newer than what's described in the tutorial). I still need to implement two functions for importing and exporting fingerprint templates and images from and to the sensor.
+A detailed tutorial on interfacing the modules and using the library is available on my project website : https://circuitstate.com/tutorials/interfacing-r307-optical-fingerprint-scanner-with-arduino/ (this repo may be newer than what's described in the tutorial). I still need to implement two functions for importing and exporting fingerprint templates and images from and to the sensor.
 
 ## Installing
 
